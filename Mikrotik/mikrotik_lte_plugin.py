@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from .agent_based_api.v1 import *
+import time
 
 
 def discover_mikrotik_lte(section):
@@ -30,6 +31,12 @@ def check_mikrotik_lte(item, params, section):
                 stateval = State.UNKNOWN
                 summaryval = "State: Unknown"
             yield Result(state = stateval, summary = summaryval)
+            nowtime = time.time()
+            valuestore = get_value_store()
+            ratein = get_rate(valuestore, f"if.{index}.bytesin", nowtime, int(bytesin))
+            yield Metric("if_in_bps", ratein)
+            rateout = get_rate(valuestore, f"if.{index}.bytesout", nowtime, int(bytesout))
+            yield Metric("if_out_bps", rateout)
     for index, rssi, rsrq, rsrp, sinr, acctec in ltesection:
         if(index==searchindex):
             yield Metric("RSSI", int(rssi))
